@@ -1,0 +1,137 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+const questions = [
+  {
+    id: 1,
+    question: "Have you ever written any code before in any programming language?",
+    placeholder: "e.g., Yes, I've tried JavaScript / No, complete beginner"
+  },
+  {
+    id: 2,
+    question: "What do you hope to build or accomplish by learning Python?",
+    placeholder: "e.g., Analyze data / Build websites / Automate tasks"
+  },
+  {
+    id: 3,
+    question: "When you encounter a problem, how do you prefer to solve it?",
+    placeholder: "Describe your approach..."
+  }
+];
+
+export default function AssessmentPage() {
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+
+  const currentQuestion = questions[currentStep];
+  const isLastQuestion = currentStep === questions.length - 1;
+
+  const handleNext = () => {
+    if (isLastQuestion) {
+      router.push('/roadmap');
+    } else {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleAnswerChange = (value: string) => {
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: value
+    }));
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
+      {/* Header */}
+      <header className="px-6 py-4 border-b border-neutral-200">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-lg tracking-tight text-neutral-900">LearnAI</h2>
+        </div>
+      </header>
+
+      {/* Progress */}
+      <div className="px-6 py-4 border-b border-neutral-200">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-2 mb-2">
+            {questions.map((_, index) => (
+              <div
+                key={index}
+                className={`h-1 flex-1 rounded-full transition-colors ${
+                  index <= currentStep ? 'bg-emerald-500' : 'bg-neutral-200'
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-sm text-neutral-600">
+            Question {currentStep + 1} of {questions.length}
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 px-6 py-16">
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl tracking-tight text-neutral-900 mb-4 leading-tight">
+              {currentQuestion.question}
+            </h1>
+            <p className="text-neutral-600 leading-relaxed">
+              This helps us understand your background and tailor the learning experience to you.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <Input
+              value={answers[currentQuestion.id] || ''}
+              onChange={(e) => handleAnswerChange(e.target.value)}
+              placeholder={currentQuestion.placeholder}
+              className="text-lg p-6 border-2 border-neutral-200 focus:border-emerald-500 rounded-lg"
+              autoFocus
+            />
+
+            <div className="flex gap-4">
+              {currentStep > 0 && (
+                <Button
+                  onClick={handleBack}
+                  variant="outline"
+                  className="px-6 py-3 border-2 border-neutral-200 hover:border-neutral-300"
+                >
+                  Back
+                </Button>
+              )}
+              <Button
+                onClick={handleNext}
+                disabled={!answers[currentQuestion.id]?.trim()}
+                className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLastQuestion ? 'View My Learning Path' : 'Continue'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Why we ask */}
+          <div className="mt-12 p-6 bg-emerald-50 rounded-lg border border-emerald-100">
+            <p className="text-sm text-emerald-900">
+              <span className="font-medium">Why we ask: </span>
+              Your answers help us identify your starting point and create a personalized roadmap
+              that builds on what you know while filling in any gaps.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+

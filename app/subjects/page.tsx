@@ -1,0 +1,83 @@
+import Link from 'next/link';
+import { Card } from '@/components/ui/card';
+
+export default function SubjectSelectionPage() {
+  return (
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <header className="px-6 py-4 border-b border-neutral-200">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/" className="text-lg tracking-tight text-neutral-900 hover:text-neutral-600 transition-colors">
+            LearnAI
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="px-6 py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-12">
+            <h1 className="text-4xl tracking-tight text-neutral-900 mb-3">
+              Choose Your Journey
+            </h1>
+            <p className="text-lg text-neutral-600 leading-relaxed">
+              Select a subject to begin your learning path
+            </p>
+          </div>
+
+          {/* Subject Card */}
+          <Link href="/assessment">
+            <Card className="p-8 cursor-pointer hover:shadow-lg transition-all border-2 border-neutral-200 hover:border-emerald-300 bg-white">
+              <div className="flex items-start gap-6">
+                {/* Icon */}
+                <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-8 h-8 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <h3 className="text-2xl text-neutral-900 mb-2">
+                    Python for Absolute Beginners
+                  </h3>
+                  <p className="text-neutral-600 leading-relaxed mb-4">
+                    Master Python from first principles. No prior programming experience needed.
+                    Learn to think like a programmer through intuitive explanations and thoughtful practice.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-sm rounded-full">
+                      First Principles
+                    </span>
+                    <span className="px-3 py-1 bg-amber-50 text-amber-700 text-sm rounded-full">
+                      Interactive
+                    </span>
+                    <span className="px-3 py-1 bg-neutral-100 text-neutral-700 text-sm rounded-full">
+                      4-6 weeks
+                    </span>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex items-center">
+                  <svg className="w-6 h-6 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          {/* Coming Soon */}
+          <div className="mt-8 p-6 bg-neutral-100 rounded-lg border border-neutral-200">
+            <p className="text-neutral-600 text-center">
+              More subjects coming soon: Mathematics, Physics, Web Development, and more
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
