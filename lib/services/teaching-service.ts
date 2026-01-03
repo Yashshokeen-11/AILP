@@ -120,12 +120,31 @@ CRITICAL: Ensure all string values use \\\\n (double backslash + n) for newlines
       console.log(`[TeachingService] Response preview (first 200 chars):`, response.substring(0, 200));
 
       // Parse JSON response (handle markdown code blocks if present)
-      let jsonStr = response;
-      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/```\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[1] || jsonMatch[0];
-        console.log(`[TeachingService] Extracted JSON from markdown code block`);
+      let jsonStr = response.trim();
+      
+      // Remove markdown code block markers if present
+      if (jsonStr.startsWith('```json')) {
+        // Remove ```json from start
+        jsonStr = jsonStr.replace(/^```json\s*\n?/, '');
+        // Remove ``` from end
+        jsonStr = jsonStr.replace(/\n?```\s*$/, '');
+        console.log(`[TeachingService] Removed markdown code block markers`);
+      } else if (jsonStr.startsWith('```')) {
+        // Remove generic ``` from start
+        jsonStr = jsonStr.replace(/^```\s*\n?/, '');
+        // Remove ``` from end
+        jsonStr = jsonStr.replace(/\n?```\s*$/, '');
+        console.log(`[TeachingService] Removed generic markdown code block markers`);
       }
+      
+      // Find JSON object if it's embedded in other text
+      const jsonObjectMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonObjectMatch && jsonObjectMatch[0] !== jsonStr) {
+        jsonStr = jsonObjectMatch[0];
+        console.log(`[TeachingService] Extracted JSON object from surrounding text`);
+      }
+      
+      jsonStr = jsonStr.trim();
 
       console.log(`[TeachingService] Parsing JSON (length: ${jsonStr.length})...`);
       let content: LearningContent;
