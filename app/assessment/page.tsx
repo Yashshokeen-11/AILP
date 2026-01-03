@@ -31,11 +31,45 @@ export default function AssessmentPage() {
   const currentQuestion = questions[currentStep];
   const isLastQuestion = currentStep === questions.length - 1;
 
-  const handleNext = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleNext = async () => {
     if (isLastQuestion) {
-      router.push('/roadmap');
+      // Submit assessment
+      await handleSubmit();
     } else {
       setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const responses = questions.map(q => ({
+        questionId: q.id.toString(),
+        responseText: answers[q.id] || '',
+      }));
+
+      const response = await fetch('/api/assessment/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ responses }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to submit assessment');
+      }
+
+      router.push('/roadmap');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit assessment');
+      setIsSubmitting(false);
     }
   };
 
@@ -101,11 +135,18 @@ export default function AssessmentPage() {
               autoFocus
             />
 
+            {error && (
+              <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg mb-4">
+                <p className="text-red-900 text-sm">{error}</p>
+              </div>
+            )}
+
             <div className="flex gap-4">
               {currentStep > 0 && (
                 <Button
                   onClick={handleBack}
                   variant="outline"
+                  disabled={isSubmitting}
                   className="px-6 py-3 border-2 border-neutral-200 hover:border-neutral-300"
                 >
                   Back
@@ -113,10 +154,10 @@ export default function AssessmentPage() {
               )}
               <Button
                 onClick={handleNext}
-                disabled={!answers[currentQuestion.id]?.trim()}
+                disabled={!answers[currentQuestion.id]?.trim() || isSubmitting}
                 className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLastQuestion ? 'View My Learning Path' : 'Continue'}
+                {isSubmitting ? 'Submitting...' : isLastQuestion ? 'View My Learning Path' : 'Continue'}
               </Button>
             </div>
           </div>

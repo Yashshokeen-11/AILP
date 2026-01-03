@@ -23,11 +23,18 @@ export default function LandingPage() {
             No videos, no distractions—just deep, intuitive understanding.
           </p>
 
-          <Link href="/subjects">
-            <Button className="bg-neutral-900 hover:bg-neutral-800 text-white px-8 py-6 text-lg rounded-lg transition-colors">
-              Start Learning
-            </Button>
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link href="/signup">
+              <Button className="bg-neutral-900 hover:bg-neutral-800 text-white px-8 py-6 text-lg rounded-lg transition-colors">
+                Get Started
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button variant="outline" className="px-8 py-6 text-lg rounded-lg border-2 border-neutral-200">
+                Sign In
+              </Button>
+            </Link>
+          </div>
 
           {/* Feature Points */}
           <div className="mt-20 grid md:grid-cols-3 gap-8 text-left">

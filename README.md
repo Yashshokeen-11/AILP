@@ -92,9 +92,22 @@ npm install
 ```
 
 2. **Set up environment variables:**
-```bash
-cp .env.example .env.local
-# Edit .env.local with your database URL
+Create a `.env.local` file in the root directory with:
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/ailp
+
+# Authentication
+NEXTAUTH_SECRET=your-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+
+# LLM API (choose one)
+OPENAI_API_KEY=your-openai-api-key-here
+# OR
+ANTHROPIC_API_KEY=your-anthropic-api-key-here
+
+# App Configuration
+NODE_ENV=development
 ```
 
 3. **Run database migrations:**
@@ -110,35 +123,66 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000) to see the landing page.
 
-## 📋 Next Steps
+## ✅ Recently Implemented
 
-### To Be Implemented:
+### 1. **Authentication System**
+   - ✅ Signup and Login pages
+   - ✅ Session-based authentication
+   - ✅ Password hashing with bcrypt
+   - ✅ Protected routes middleware
 
-1. **Remaining Pages**
-   - Subject Selection Page
-   - Assessment Page
-   - Roadmap Page
-   - Learning Page (with sidebar)
-   - Feedback Page
+### 2. **API Routes**
+   - ✅ `/api/auth/signup` - User registration
+   - ✅ `/api/auth/login` - User login
+   - ✅ `/api/auth/logout` - User logout
+   - ✅ `/api/auth/me` - Get current user
+   - ✅ `/api/assessment/submit` - Submit and analyze assessment
+   - ✅ `/api/roadmap` - Get learner roadmap
+   - ✅ `/api/learn/[conceptId]` - Get learning content
+   - ✅ `/api/learn/[conceptId]/checkpoint` - Submit checkpoint response
+   - ✅ `/api/learn/[conceptId]/complete` - Complete concept
 
-2. **API Routes**
-   - Authentication endpoints
-   - Assessment submission & analysis
-   - Roadmap generation
-   - Learning content generation
-   - Weak point detection
+### 3. **Service Layer**
+   - ✅ LLM client abstraction (OpenAI & Anthropic support)
+   - ✅ Teaching service with Socratic method
+   - ✅ Assessment analyzer
+   - ✅ Learning content generator
+   - ✅ Checkpoint feedback generator
 
-3. **Service Layer**
-   - LLM client abstraction
-   - Teaching strategy controller
-   - Assessment analyzer
-   - Curriculum generator
-   - Weak point recognition engine
+### 4. **Database Integration**
+   - ✅ Type-safe database queries
+   - ✅ Concept mastery tracking
+   - ✅ Learning session management
+   - ✅ Assessment response storage
+   - ✅ Weak point detection storage
 
-4. **Database Setup**
-   - Connection configuration
-   - Migration scripts
-   - Seed data (optional)
+### 5. **UI Improvements**
+   - ✅ Loading states on all pages
+   - ✅ Error handling and display
+   - ✅ Real-time progress tracking
+   - ✅ Dynamic roadmap with concept statuses
+   - ✅ API-integrated learning content
+
+## 📋 Future Enhancements
+
+1. **Enhanced Features**
+   - [ ] Email verification
+   - [ ] Password reset functionality
+   - [ ] Progress analytics dashboard
+   - [ ] Social learning features
+   - [ ] Export learning certificates
+
+2. **Advanced Teaching**
+   - [ ] Adaptive difficulty adjustment
+   - [ ] Personalized learning pace
+   - [ ] Multi-modal content (diagrams, interactive examples)
+   - [ ] Spaced repetition system
+
+3. **Additional Subjects**
+   - [ ] Mathematics
+   - [ ] Physics
+   - [ ] Web Development
+   - [ ] Data Science
 
 ## 🎨 Design System
 
