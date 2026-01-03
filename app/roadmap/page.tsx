@@ -143,12 +143,12 @@ export default function RoadmapPage() {
                         <div
                           className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                             concept.status === 'completed'
-                              ? 'bg-emerald-500 border-4 border-emerald-100'
+                              ? 'bg-primary border-4 border-primary/20'
                               : concept.status === 'in_progress'
                               ? 'bg-amber-400 border-4 border-amber-100 animate-pulse'
                               : concept.status === 'available'
                               ? 'bg-blue-400 border-4 border-blue-100'
-                              : 'bg-neutral-200 border-4 border-neutral-50'
+                              : 'bg-muted border-4 border-muted'
                           }`}
                         >
                           {concept.status === 'completed' && (
@@ -171,8 +171,8 @@ export default function RoadmapPage() {
                               : concept.status === 'available'
                               ? 'border-blue-300 bg-blue-50'
                               : isHovered && isClickable
-                              ? 'border-emerald-300 bg-white shadow-md'
-                              : 'border-neutral-200 bg-white'
+                              ? 'border-primary/30 bg-card shadow-md'
+                              : 'border-border bg-card'
                           } ${!isClickable && 'opacity-60'}`}
                         >
                           <h3 className="text-lg text-neutral-900 mb-1">

@@ -27,11 +27,11 @@ export default function SubjectSelectionPage() {
 
           {/* Subject Card */}
           <Link href="/assessment">
-            <Card className="p-8 cursor-pointer hover:shadow-lg transition-all border-2 border-neutral-200 hover:border-emerald-300 bg-white">
+            <Card className="p-8 cursor-pointer hover:shadow-lg transition-all border-2 border-border hover:border-primary bg-card">
               <div className="flex items-start gap-6">
                 {/* Icon */}
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <svg className="w-8 h-8 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-primary/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                   </svg>
                 </div>
@@ -47,7 +47,7 @@ export default function SubjectSelectionPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-sm rounded-full">
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
                       First Principles
                     </span>
                     <span className="px-3 py-1 bg-amber-50 text-amber-700 text-sm rounded-full">

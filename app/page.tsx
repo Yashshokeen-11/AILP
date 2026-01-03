@@ -25,12 +25,12 @@ export default function LandingPage() {
 
           <div className="flex gap-4 justify-center">
             <Link href="/signup">
-              <Button className="bg-neutral-900 hover:bg-neutral-800 text-white px-8 py-6 text-lg rounded-lg transition-colors">
+              <Button className="px-8 py-6 text-lg">
                 Get Started
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="outline" className="px-8 py-6 text-lg rounded-lg border-2 border-neutral-200">
+              <Button variant="outline" className="px-8 py-6 text-lg">
                 Sign In
               </Button>
             </Link>
@@ -39,37 +39,37 @@ export default function LandingPage() {
           {/* Feature Points */}
           <div className="mt-20 grid md:grid-cols-3 gap-8 text-left">
             <div className="space-y-2">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-5 h-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg text-neutral-900">First Principles</h3>
-              <p className="text-neutral-600 leading-relaxed">
+              <h3 className="text-lg text-foreground">First Principles</h3>
+              <p className="text-muted-foreground leading-relaxed">
                 Build understanding from the ground up, not memorization
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-5 h-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-lg text-neutral-900">Socratic Method</h3>
-              <p className="text-neutral-600 leading-relaxed">
+              <h3 className="text-lg text-foreground">Socratic Method</h3>
+              <p className="text-muted-foreground leading-relaxed">
                 Learn through thoughtful questions and guided discovery
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-5 h-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-lg text-neutral-900">Adaptive Progress</h3>
-              <p className="text-neutral-600 leading-relaxed">
+              <h3 className="text-lg text-foreground">Adaptive Progress</h3>
+              <p className="text-muted-foreground leading-relaxed">
                 Your learning path adapts to your understanding
               </p>
             </div>

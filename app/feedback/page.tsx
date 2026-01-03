@@ -57,9 +57,9 @@ export default function FeedbackPage() {
             
             <div className="space-y-3">
               {/* Step 1 */}
-              <div className="p-5 bg-white border-2 border-neutral-200 rounded-lg hover:border-emerald-300 transition-colors cursor-pointer">
+              <div className="p-5 bg-card border-2 border-border rounded-lg hover:border-primary transition-colors cursor-pointer">
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center flex-shrink-0">
                     1
                   </div>
                   <div className="flex-1">
@@ -112,7 +112,7 @@ export default function FeedbackPage() {
           </div>
 
           {/* Encouragement */}
-          <div className="p-6 bg-gradient-to-br from-emerald-50 to-amber-50 rounded-lg border-2 border-emerald-200 mb-8">
+          <div className="p-6 bg-gradient-to-br from-primary/10 to-amber-50 rounded-lg border-2 border-primary/20 mb-8">
             <p className="text-neutral-800 leading-relaxed">
               <strong>Remember:</strong> Mastery comes from addressing gaps as they appear.
               Taking time to strengthen your foundation now will make everything that follows easier
@@ -124,7 +124,7 @@ export default function FeedbackPage() {
           <div className="flex gap-4">
             <Button
               onClick={() => router.push('/learn/loops')}
-              className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white"
+              className="px-6 py-3"
             >
               Start Review
             </Button>

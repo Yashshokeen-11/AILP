@@ -207,20 +207,20 @@ export default function LearningPage() {
                 key={index}
                 className={`p-3 rounded-lg border transition-colors ${
                   index === currentSection
-                    ? 'border-emerald-300 bg-emerald-50'
+                    ? 'border-primary/30 bg-primary/10'
                     : index < currentSection
-                    ? 'border-neutral-200 bg-neutral-50'
-                    : 'border-neutral-200'
+                    ? 'border-border bg-muted'
+                    : 'border-border'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                       index < currentSection
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : index === currentSection
                         ? 'bg-amber-400 text-white'
-                        : 'bg-neutral-200 text-neutral-600'
+                        : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     {index < currentSection ? '✓' : index + 1}
@@ -237,9 +237,9 @@ export default function LearningPage() {
 
           <div className="mt-6 pt-6 border-t border-neutral-200">
             <div className="text-sm text-neutral-600 mb-2">Progress</div>
-            <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-emerald-500 transition-all duration-300"
+                className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -271,7 +271,7 @@ export default function LearningPage() {
             {/* Introduction Section */}
             {section.type === 'introduction' && (
               <div className="space-y-6">
-                <div className="inline-block px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm">
+                <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm">
                   Introduction
                 </div>
                 <div className="prose prose-lg max-w-none">
@@ -346,8 +346,8 @@ export default function LearningPage() {
                     </p>
                   )}
                   {showCheckpointFeedback && (
-                    <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                      <p className="text-emerald-900">
+                    <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                      <p className="text-primary">
                         {checkpointFeedback || 'Great thinking! This kind of reflection is key to deep understanding.'}
                       </p>
                     </div>
@@ -390,11 +390,11 @@ export default function LearningPage() {
             {/* Reflection Section */}
             {section.type === 'reflection' && (
               <div className="space-y-6">
-                <div className="p-8 bg-gradient-to-br from-emerald-50 to-amber-50 border-2 border-emerald-200 rounded-lg">
+                <div className="p-8 bg-gradient-to-br from-primary/10 to-amber-50 border-2 border-primary/20 rounded-lg">
                   <div className="flex gap-4">
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
@@ -426,7 +426,7 @@ export default function LearningPage() {
             <Button
               onClick={handleNext}
               disabled={section.type === 'checkpoint' && !checkpointAnswer.trim() && !showCheckpointFeedback}
-              className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white disabled:opacity-50"
+              className="px-6 py-3"
             >
               {isLastSection ? 'Complete Lesson' : 
                section.type === 'checkpoint' && !showCheckpointFeedback ? 'Submit' : 
