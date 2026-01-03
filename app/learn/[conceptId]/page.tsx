@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getConceptById } from '@/lib/knowledge-graph/python-graph';
 import { LearningContent, LearningSection } from '@/lib/services/teaching-service';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function LearningPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, logout } = useAuth();
   const conceptId = params.conceptId as string;
   const [currentSection, setCurrentSection] = useState(0);
   const [checkpointAnswer, setCheckpointAnswer] = useState('');
@@ -32,18 +34,36 @@ export default function LearningPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/learn/${conceptId}`);
+      console.log(`[LearningPage] Fetching content for concept: ${conceptId}`);
+      const response = await fetch(`/api/learn/${conceptId}`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         if (response.status === 401) {
           router.push('/login');
           return;
         }
-        throw new Error('Failed to load learning content');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[LearningPage] API error:', response.status, errorData);
+        throw new Error(errorData.error || 'Failed to load learning content');
       }
       const data = await response.json();
+      console.log('[LearningPage] Received data:', {
+        hasContent: !!data.content,
+        title: data.content?.title,
+        sectionsCount: data.content?.sections?.length,
+        firstSection: data.content?.sections?.[0],
+      });
+      if (!data.content) {
+        throw new Error('No content received from API');
+      }
+      // Clear any previous errors and set the content
+      setError(null);
       setContent(data.content);
       setSessionId(data.sessionId);
+      console.log('[LearningPage] Content set successfully');
     } catch (err) {
+      console.error('[LearningPage] Error fetching content:', err);
       setError(err instanceof Error ? err.message : 'Failed to load content');
     } finally {
       setLoading(false);
@@ -74,12 +94,18 @@ export default function LearningPage() {
     );
   }
 
-  if (error || !content) {
+  // Only show error if we're not loading and we have an error but no content
+  if (!loading && error && !content) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="text-center max-w-md">
           <h1 className="text-2xl text-neutral-900 mb-4">Error loading content</h1>
-          <p className="text-neutral-600 mb-6">{error || 'Content not available'}</p>
+          <p className="text-neutral-600 mb-6">{error}</p>
+          <p className="text-xs text-neutral-500 mb-4">
+            Check the browser console and server logs for details.
+            <br />
+            The AI content generation may be taking longer than expected.
+          </p>
           <div className="flex gap-4 justify-center">
             <Button onClick={fetchLearningContent} variant="outline">
               Retry
@@ -88,6 +114,18 @@ export default function LearningPage() {
               Back to Roadmap
             </Button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If we have content, show it even if there was a previous error
+  if (!content) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 mb-4"></div>
+          <p className="text-neutral-600">Loading learning content...</p>
         </div>
       </div>
     );
@@ -181,7 +219,7 @@ export default function LearningPage() {
     <div className="min-h-screen bg-neutral-50 flex">
       {/* Left Sidebar - Learning Path */}
       <aside className="w-80 border-r border-neutral-200 bg-white hidden lg:block">
-        <div className="p-6 border-b border-neutral-200">
+        <div className="p-6 border-b border-neutral-200 space-y-4">
           <button
             onClick={() => router.push('/roadmap')}
             className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors"
@@ -191,6 +229,19 @@ export default function LearningPage() {
             </svg>
             <span>Back to Roadmap</span>
           </button>
+          {user && (
+            <div className="pt-4 border-t border-neutral-200">
+              <div className="text-xs text-neutral-500 mb-2">{user.email}</div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="w-full text-sm"
+              >
+                Sign Out
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="p-6">

@@ -24,10 +24,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect to subjects if accessing login/signup with session
-  if ((pathname === '/login' || pathname === '/signup') && sessionCookie) {
-    return NextResponse.redirect(new URL('/subjects', request.url));
-  }
+  // Allow access to login/signup pages even with a cookie
+  // (The pages themselves will handle redirecting if user is authenticated)
+  // This prevents redirect loops and allows users to log in even if they have an invalid cookie
 
   return NextResponse.next();
 }

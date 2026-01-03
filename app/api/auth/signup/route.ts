@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createUser, getUserByEmail } from '@/lib/db/queries';
-import { hashPassword, createSession, setSessionData } from '@/lib/auth/utils';
+import { hashPassword, createSession } from '@/lib/auth/utils';
 import { createLearnerProfile } from '@/lib/db/queries';
 import { PYTHON_KNOWLEDGE_GRAPH } from '@/lib/knowledge-graph/python-graph';
 import { initializeConceptMasteries } from '@/lib/db/queries';
@@ -39,9 +39,8 @@ export async function POST(request: NextRequest) {
     // Initialize concept masteries
     await initializeConceptMasteries(profile.id, PYTHON_KNOWLEDGE_GRAPH);
 
-    // Create session
-    const sessionId = await createSession(user.id);
-    setSessionData(sessionId, user.id);
+    // Create session (this stores in database and sets the cookie)
+    await createSession(user.id);
 
     return NextResponse.json({
       success: true,

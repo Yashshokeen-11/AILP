@@ -1,7 +1,76 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function SubjectSelectionPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
+  // Check if user has completed assessment and redirect accordingly
+  useEffect(() => {
+    if (!authLoading) {
+      if (user) {
+        // User is authenticated, check status and redirect
+        fetch('/api/auth/status', {
+          credentials: 'include',
+        })
+          .then(res => {
+            if (res.ok) {
+              return res.json();
+            }
+            // If status check fails, still redirect to assessment
+            return { redirectTo: '/assessment' };
+          })
+          .then(data => {
+            // Automatically redirect based on assessment status
+            router.push(data.redirectTo || '/assessment');
+          })
+          .catch(() => {
+            // If error, redirect to assessment as default
+            router.push('/assessment');
+          });
+      } else {
+        // Not authenticated - wait a moment for cookie to be available, then check again
+        const checkAuth = async () => {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          const res = await fetch('/api/auth/me', {
+            credentials: 'include',
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+              // Cookie is now available, check status
+              const statusRes = await fetch('/api/auth/status', {
+                credentials: 'include',
+              });
+              if (statusRes.ok) {
+                const statusData = await statusRes.json();
+                router.push(statusData.redirectTo || '/assessment');
+                return;
+              }
+            }
+          }
+          // Still not authenticated after waiting, redirect to login
+          router.push('/login');
+        };
+        checkAuth();
+      }
+    }
+  }, [user, authLoading, router]);
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <p className="text-neutral-600">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}

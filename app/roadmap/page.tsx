@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { ConceptStatus } from '@/lib/knowledge-graph/types';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 interface RoadmapConcept {
   id: string;
@@ -17,6 +19,7 @@ interface RoadmapConcept {
 
 export default function RoadmapPage() {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [concepts, setConcepts] = useState<RoadmapConcept[]>([]);
   const [progress, setProgress] = useState({ completed: 0, total: 0, percent: 0 });
@@ -57,9 +60,24 @@ export default function RoadmapPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <h2 className="text-lg tracking-tight text-neutral-900">LearnAI</h2>
           <div className="flex items-center gap-4">
+            {user && (
+              <span className="text-sm text-neutral-600">
+                {user.email}
+              </span>
+            )}
             <span className="text-sm text-neutral-600">
               {progress.completed} of {progress.total} concepts mastered
             </span>
+            {user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="text-sm"
+              >
+                Sign Out
+              </Button>
+            )}
           </div>
         </div>
       </header>

@@ -56,11 +56,41 @@ export async function GET(
       }
     }
 
-    // Generate learning content
+    // Generate learning content using AI (Gemini)
+    console.log(`[API] Generating AI content for concept: ${concept.title} (${conceptId})`);
     const teachingService = new TeachingService();
-    const content = await teachingService.generateLearningContent(concept, {
-      previousConcepts: concept.prerequisites,
-    });
+    let content;
+    try {
+      content = await teachingService.generateLearningContent(concept, {
+        previousConcepts: concept.prerequisites,
+      });
+      console.log(`[API] Successfully generated content: "${content.title}" with ${content.sections.length} sections`);
+      console.log(`[API] Section types:`, content.sections.map(s => s.type));
+    } catch (error) {
+      console.error('[API] Error generating learning content:', error);
+      console.error('[API] Error details:', error instanceof Error ? error.stack : error);
+      // Return a more detailed error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return NextResponse.json(
+        { 
+          error: 'Failed to generate learning content. Please try again.',
+          details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        },
+        { status: 500 }
+      );
+    }
+
+    // Validate content was generated
+    if (!content || !content.sections || content.sections.length === 0) {
+      console.error('[API] Generated content is empty or invalid:', { 
+        hasContent: !!content, 
+        sectionsCount: content?.sections?.length 
+      });
+      return NextResponse.json(
+        { error: 'Failed to generate learning content. Generated content is empty.' },
+        { status: 500 }
+      );
+    }
 
     // Create or update learning session
     const session = await createLearningSession(

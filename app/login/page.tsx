@@ -1,17 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && user) {
+      // Check status and redirect accordingly
+      fetch('/api/auth/status', {
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then(data => {
+          router.push(data.redirectTo || '/subjects');
+        })
+        .catch(() => {
+          router.push('/subjects');
+        });
+    }
+  }, [user, authLoading, router]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <p className="text-neutral-600">Loading...</p>
+      </div>
+    );
+  }
+
+  // Don't show login form if already authenticated (redirect will happen)
+  if (user) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +57,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies in request
         body: JSON.stringify({ email, password }),
       });
 
@@ -33,11 +67,15 @@ export default function LoginPage() {
         throw new Error(data.error || 'Failed to login');
       }
 
-      // Redirect to subjects page
-      router.push('/subjects');
+      console.log('Login response successful, redirecting...');
+
+      // Success! Use full page reload to ensure cookie is set and available
+      // Wait a moment to ensure cookie is processed, then redirect
+      setTimeout(() => {
+        window.location.href = '/subjects';
+      }, 300);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to login');
-    } finally {
       setLoading(false);
     }
   };

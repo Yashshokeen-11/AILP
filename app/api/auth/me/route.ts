@@ -18,7 +18,7 @@ export async function GET() {
       );
     }
 
-    const sessionData = getSessionData(sessionId);
+    const sessionData = await getSessionData(sessionId);
     if (!sessionData) {
       return NextResponse.json(
         { error: 'Invalid session' },

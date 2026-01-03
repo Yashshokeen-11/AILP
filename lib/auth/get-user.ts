@@ -11,11 +11,13 @@ export async function getCurrentUser() {
   try {
     const sessionId = await getSession();
     if (!sessionId) {
+      console.log('No session ID found');
       return null;
     }
 
-    const sessionData = getSessionData(sessionId);
+    const sessionData = await getSessionData(sessionId);
     if (!sessionData) {
+      console.log('No session data found for session ID:', sessionId.substring(0, 20) + '...');
       return null;
     }
 
@@ -24,7 +26,12 @@ export async function getCurrentUser() {
       email: users.email,
     }).from(users).where(eq(users.id, sessionData.userId)).limit(1);
 
-    return user[0] || null;
+    if (!user[0]) {
+      console.log('User not found for userId:', sessionData.userId);
+      return null;
+    }
+
+    return user[0];
   } catch (error) {
     console.error('Get current user error:', error);
     return null;

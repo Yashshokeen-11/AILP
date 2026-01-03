@@ -27,6 +27,14 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Sessions table - stores user sessions
+export const sessions = pgTable('sessions', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // Learner profiles - tracks overall progress
 export const learnerProfiles = pgTable('learner_profiles', {
   id: uuid('id').primaryKey().defaultRandom(),

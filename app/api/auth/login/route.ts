@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUserByEmail } from '@/lib/db/queries';
-import { verifyPassword, createSession, setSessionData } from '@/lib/auth/utils';
+import { verifyPassword, createSession } from '@/lib/auth/utils';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -35,9 +35,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create session
+    // Create session (this stores in database and sets the cookie)
     const sessionId = await createSession(user.id);
-    setSessionData(sessionId, user.id);
+
+    console.log('Login successful:', { userId: user.id, sessionId: sessionId.substring(0, 20) + '...' });
 
     return NextResponse.json({
       success: true,

@@ -45,8 +45,8 @@ export default function SignupPage() {
         throw new Error(data.error || 'Failed to create account');
       }
 
-      // Redirect to assessment
-      router.push('/assessment');
+      // Use full page reload to ensure cookies are set
+      window.location.href = '/assessment';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create account');
     } finally {

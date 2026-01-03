@@ -86,14 +86,17 @@ npm install
 2. **Set up environment variables:**
 Create a `.env.local` file in the root directory with:
 ```env
-# Database
+# Database (PostgreSQL - can use Supabase or any PostgreSQL instance)
 DATABASE_URL=postgresql://user:password@localhost:5432/ailp
+# For Supabase: DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@[YOUR-PROJECT].supabase.co:5432/postgres
 
 # Authentication
 NEXTAUTH_SECRET=your-secret-key-here
 NEXTAUTH_URL=http://localhost:3000
 
-# LLM API (choose one)
+# LLM API (choose one - Gemini is prioritized if set)
+GEMINI_API_KEY=your-gemini-api-key-here
+# OR
 OPENAI_API_KEY=your-openai-api-key-here
 # OR
 ANTHROPIC_API_KEY=your-anthropic-api-key-here

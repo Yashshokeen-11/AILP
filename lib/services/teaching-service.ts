@@ -72,36 +72,43 @@ Generate 5-8 sections that teach this concept from first principles. Include:
 - 1 analogy section
 - 1 reflection section
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format. IMPORTANT: All newlines in string values must be escaped as \\\\n (double backslash + n), not actual newlines. All JSON must be properly formatted and parseable:
+
 {
   "title": "Concept Title",
   "sections": [
     {
       "type": "introduction",
-      "content": "Introduction text..."
+      "content": "Introduction text with \\\\n for line breaks, not actual newlines"
     },
     {
       "type": "concept",
-      "content": "Concept explanation with **bold** for emphasis and \`\`\`python\ncode\n\`\`\` for code blocks"
+      "content": "Concept explanation with **bold** for emphasis and code blocks. Use \\\\n for line breaks."
     },
     {
       "type": "checkpoint",
       "question": "Thoughtful question that tests understanding",
-      "hint": "Helpful hint if they're stuck"
+      "hint": "Helpful hint if they are stuck"
     },
     {
       "type": "analogy",
-      "content": "Analogy content..."
+      "content": "Analogy content with \\\\n for line breaks"
     },
     {
       "type": "reflection",
-      "content": "Reflection prompt..."
+      "content": "Reflection prompt with \\\\n for line breaks"
     }
   ]
-}`;
+}
 
+CRITICAL: Ensure all string values use \\\\n (double backslash + n) for newlines, not actual newline characters. The JSON must be valid and parseable.`;
+
+    let response: string | undefined;
     try {
-      const response = await this.llm.generate([
+      console.log(`[TeachingService] Generating content for: ${concept.title}`);
+      console.log(`[TeachingService] Using LLM client...`);
+      
+      response = await this.llm.generate([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ], {
@@ -109,21 +116,113 @@ Return ONLY valid JSON in this exact format:
         maxTokens: 3000,
       });
 
+      console.log(`[TeachingService] Received response from LLM (length: ${response.length})`);
+      console.log(`[TeachingService] Response preview (first 200 chars):`, response.substring(0, 200));
+
       // Parse JSON response (handle markdown code blocks if present)
-      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response;
-      const content = JSON.parse(jsonStr) as LearningContent;
+      let jsonStr = response;
+      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/```\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1] || jsonMatch[0];
+        console.log(`[TeachingService] Extracted JSON from markdown code block`);
+      }
+
+      console.log(`[TeachingService] Parsing JSON (length: ${jsonStr.length})...`);
+      let content: LearningContent;
+      
+      try {
+        // First attempt: direct parse
+        content = JSON.parse(jsonStr) as LearningContent;
+      } catch (parseError: any) {
+        // If parsing fails due to control characters, fix them
+        console.warn('[TeachingService] First parse attempt failed:', parseError.message);
+        console.log('[TeachingService] Attempting to fix control characters in JSON...');
+        
+        // Use a simpler, more reliable approach: replace control characters in string values
+        // This regex-based approach is more reliable than character-by-character
+        let fixedJson = jsonStr;
+        
+        // Strategy 1: Fix unescaped newlines, tabs, and carriage returns in string values
+        // Match string values (content between quotes, handling escaped quotes)
+        fixedJson = fixedJson.replace(/"([^"\\]|\\.)*"/g, (match) => {
+          // Only process if it's a content string (not a key)
+          // Check if it contains unescaped control characters
+          if (match.includes('\n') || match.includes('\r') || match.includes('\t')) {
+            // Escape control characters, but preserve already-escaped ones
+            return match
+              .replace(/([^\\])\n/g, '$1\\n')  // Escape unescaped newlines
+              .replace(/([^\\])\r/g, '$1\\r')  // Escape unescaped carriage returns
+              .replace(/([^\\])\t/g, '$1\\t') // Escape unescaped tabs
+              .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove other control chars
+          }
+          return match;
+        });
+        
+        try {
+          content = JSON.parse(fixedJson) as LearningContent;
+          console.log('[TeachingService] Successfully parsed JSON after fixing control characters');
+        } catch (secondError: any) {
+          // If that still fails, try a more aggressive approach
+          console.warn('[TeachingService] Second parse attempt failed:', secondError.message);
+          console.log('[TeachingService] Trying aggressive JSON cleanup...');
+          
+          // More aggressive: escape control characters that aren't already escaped
+          // Process character by character to handle escaping properly
+          let aggressiveFix = '';
+          for (let i = 0; i < jsonStr.length; i++) {
+            const char = jsonStr[i];
+            const prevChar = i > 0 ? jsonStr[i - 1] : '';
+            
+            // If previous char was backslash, this is escaped - keep as is
+            if (prevChar === '\\') {
+              aggressiveFix += char;
+              continue;
+            }
+            
+            // Escape unescaped control characters
+            if (char === '\n') {
+              aggressiveFix += '\\n';
+            } else if (char === '\r') {
+              aggressiveFix += '\\r';
+            } else if (char === '\t') {
+              aggressiveFix += '\\t';
+            } else if (char.charCodeAt(0) >= 0 && char.charCodeAt(0) < 32 && char !== '\n' && char !== '\r' && char !== '\t') {
+              // Remove other control characters
+              continue;
+            } else {
+              aggressiveFix += char;
+            }
+          }
+          fixedJson = aggressiveFix;
+          
+          try {
+            content = JSON.parse(fixedJson) as LearningContent;
+            console.log('[TeachingService] Successfully parsed JSON after aggressive cleanup');
+          } catch (thirdError) {
+            console.error('[TeachingService] All JSON parsing attempts failed');
+            console.error('[TeachingService] JSON string (first 500 chars):', jsonStr.substring(0, 500));
+            throw parseError; // Throw original error
+          }
+        }
+      }
 
       // Validate structure
       if (!content.title || !Array.isArray(content.sections)) {
+        console.error('[TeachingService] Invalid content structure:', { title: content.title, sectionsCount: content.sections?.length });
         throw new Error('Invalid content structure');
       }
 
+      console.log(`[TeachingService] Successfully generated content: "${content.title}" with ${content.sections.length} sections`);
       return content;
     } catch (error) {
-      console.error('Error generating learning content:', error);
-      // Return fallback content
-      return this.getFallbackContent(concept);
+      console.error('[TeachingService] Error generating learning content:', error);
+      if (error instanceof SyntaxError && response) {
+        console.error('[TeachingService] JSON parse error. This usually means the LLM response was not valid JSON.');
+        console.error('[TeachingService] Raw response (first 1000 chars):', response.substring(0, 1000));
+      }
+      // Re-throw the error so the API route can handle it properly
+      // Don't silently return fallback content - let the caller decide
+      throw new Error(`Failed to generate learning content: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

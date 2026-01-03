@@ -3,17 +3,11 @@
  */
 
 import { NextResponse } from 'next/server';
-import { deleteSession, getSession, getSessionData } from '@/lib/auth/utils';
+import { deleteSession } from '@/lib/auth/utils';
 
 export async function POST() {
   try {
-    const sessionId = await getSession();
-    if (sessionId) {
-      const sessionData = getSessionData(sessionId);
-      if (sessionData) {
-        // In production, invalidate session in database/Redis
-      }
-    }
+    // deleteSession now handles both database deletion and cookie deletion
     await deleteSession();
 
     return NextResponse.json({ success: true });

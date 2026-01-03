@@ -19,14 +19,18 @@ export function useAuth() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include', // Include cookies in request
+      });
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       } else {
+        // 401 is expected when not logged in - silently set user to null
         setUser(null);
       }
     } catch (error) {
+      // Network errors or other issues - silently handle
       setUser(null);
     } finally {
       setLoading(false);
@@ -37,6 +41,7 @@ export function useAuth() {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // Include cookies in request
       body: JSON.stringify({ email, password }),
     });
 
@@ -52,6 +57,7 @@ export function useAuth() {
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // Include cookies in request
       body: JSON.stringify({ email, password }),
     });
 
@@ -64,7 +70,14 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setUser(null);
     router.push('/');
   };
