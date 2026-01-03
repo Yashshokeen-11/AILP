@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,16 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { getConceptById } from '@/lib/knowledge-graph/python-graph';
 import { LearningContent, LearningSection } from '@/lib/services/teaching-service';
 import { useAuth } from '@/lib/hooks/use-auth';
+
+// Dynamically import 3D teacher to avoid SSR issues
+const Teacher3D = dynamic(() => import('@/components/teacher-3d').then(mod => ({ default: mod.Teacher3D })), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-64 flex items-center justify-center bg-muted/20 rounded-lg">
+      <div className="text-muted-foreground text-sm">Loading teacher...</div>
+    </div>
+  ),
+});
 
 export default function LearningPage() {
   const params = useParams();
@@ -219,7 +230,7 @@ export default function LearningPage() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left Sidebar - Learning Path */}
-      <aside className="w-80 border-r border-border bg-card hidden lg:block">
+      <aside className="w-80 border-r border-border bg-card hidden lg:block flex flex-col">
         <div className="p-6 border-b border-border space-y-4">
           <button
             onClick={() => router.push('/roadmap')}
