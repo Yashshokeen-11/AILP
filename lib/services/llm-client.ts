@@ -141,7 +141,7 @@ export class LLMClient {
     const genAI = new GoogleGenerativeAI(this.config.apiKey);
     
     // First, try to get list of available models
-    console.log(`[LLMClient] Fetching available models for this API key...`);
+    console.log(`[LLMClient] Fetching available models...`);
     const availableModels = await this.listAvailableGeminiModels();
     
     // Build list of models to try
