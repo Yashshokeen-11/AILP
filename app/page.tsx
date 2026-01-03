@@ -1,24 +1,26 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="px-6 py-4 border-b border-neutral-200">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-lg tracking-tight text-neutral-900">LearnAI</h2>
+      <header className="px-6 py-4 border-b border-border">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <h2 className="text-lg tracking-tight text-foreground font-semibold">LearnAI</h2>
+          <ThemeToggle />
         </div>
       </header>
 
       {/* Hero Section */}
       <main className="flex-1 flex items-center justify-center px-6 py-16">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl tracking-tight text-neutral-900 mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl tracking-tight text-foreground mb-6 leading-tight font-semibold">
             Learn Any Subject the Way the Best Teacher Would Teach You
           </h1>
           
-          <p className="text-xl text-neutral-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
             Master concepts from first principles with personalized AI teaching.
             No videos, no distractions—just deep, intuitive understanding.
           </p>
@@ -78,8 +80,8 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-neutral-200">
-        <div className="max-w-6xl mx-auto text-center text-sm text-neutral-500">
+      <footer className="px-6 py-8 border-t border-border">
+        <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
           Learn at your own pace, master concepts deeply
         </div>
       </footer>

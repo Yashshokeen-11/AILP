@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { getConceptById } from '@/lib/knowledge-graph/python-graph';
 import { LearningContent, LearningSection } from '@/lib/services/teaching-service';
 import { useAuth } from '@/lib/hooks/use-auth';
@@ -216,13 +217,13 @@ export default function LearningPage() {
   const progressPercent = ((currentSection + 1) / content.sections.length) * 100;
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Left Sidebar - Learning Path */}
-      <aside className="w-80 border-r border-neutral-200 bg-white hidden lg:block">
-        <div className="p-6 border-b border-neutral-200 space-y-4">
+      <aside className="w-80 border-r border-border bg-card hidden lg:block">
+        <div className="p-6 border-b border-border space-y-4">
           <button
             onClick={() => router.push('/roadmap')}
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -230,25 +231,28 @@ export default function LearningPage() {
             <span>Back to Roadmap</span>
           </button>
           {user && (
-            <div className="pt-4 border-t border-neutral-200">
-              <div className="text-xs text-neutral-500 mb-2">{user.email}</div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={logout}
-                className="w-full text-sm"
-              >
-                Sign Out
-              </Button>
+            <div className="pt-4 border-t border-border">
+              <div className="text-xs text-muted-foreground mb-2">{user.email}</div>
+              <div className="flex gap-2">
+                <ThemeToggle />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex-1 text-sm"
+                >
+                  Sign Out
+                </Button>
+              </div>
             </div>
           )}
         </div>
 
         <div className="p-6">
-          <h2 className="text-sm uppercase tracking-wider text-neutral-500 mb-4">
+          <h2 className="text-sm uppercase tracking-wider text-primary mb-4 font-semibold">
             Current Lesson
           </h2>
-          <h3 className="text-lg text-neutral-900 mb-6">
+          <h3 className="text-lg text-foreground mb-6 font-semibold">
             {content.title}
           </h3>
 
@@ -256,28 +260,28 @@ export default function LearningPage() {
             {content.sections.map((s, index) => (
               <div
                 key={index}
-                className={`p-3 rounded-lg border transition-colors ${
+                className={`p-3 rounded-lg border transition-colors classroom-card ${
                   index === currentSection
-                    ? 'border-primary/30 bg-primary/10'
+                    ? 'border-primary/40 bg-primary/10 teaching-highlight'
                     : index < currentSection
-                    ? 'border-border bg-muted'
+                    ? 'border-primary/20 bg-primary/5'
                     : 'border-border'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                       index < currentSection
                         ? 'bg-primary text-primary-foreground'
                         : index === currentSection
-                        ? 'bg-amber-400 text-white'
+                        ? 'bg-primary text-primary-foreground animate-pulse'
                         : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     {index < currentSection ? '✓' : index + 1}
                   </div>
                   <span className={`text-sm ${
-                    index === currentSection ? 'text-neutral-900' : 'text-neutral-600'
+                    index === currentSection ? 'text-foreground font-medium' : 'text-muted-foreground'
                   }`}>
                     {s.type === 'checkpoint' ? 'Checkpoint' : 'Section'} {index + 1}
                   </span>
@@ -286,15 +290,15 @@ export default function LearningPage() {
             ))}
           </div>
 
-          <div className="mt-6 pt-6 border-t border-neutral-200">
-            <div className="text-sm text-neutral-600 mb-2">Progress</div>
+          <div className="mt-6 pt-6 border-t border-border">
+            <div className="text-sm text-muted-foreground mb-2 font-medium">Progress</div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className="text-xs text-neutral-500 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               {currentSection + 1} of {content.sections.length} sections
             </div>
           </div>
@@ -304,16 +308,19 @@ export default function LearningPage() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
         {/* Mobile Header */}
-        <header className="lg:hidden px-6 py-4 border-b border-neutral-200">
-          <button
-            onClick={() => router.push('/roadmap')}
-            className="flex items-center gap-2 text-neutral-600"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Back to Roadmap</span>
-          </button>
+        <header className="lg:hidden px-6 py-4 border-b border-border bg-card">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.push('/roadmap')}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Back to Roadmap</span>
+            </button>
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Content Area */}
@@ -322,12 +329,12 @@ export default function LearningPage() {
             {/* Introduction Section */}
             {section.type === 'introduction' && (
               <div className="space-y-6">
-                <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm">
+                <div className="inline-block px-4 py-2 bg-primary/15 text-primary rounded-full text-sm font-semibold border border-primary/20">
                   Introduction
                 </div>
-                <div className="prose prose-lg max-w-none">
+                <div className="prose prose-lg max-w-none dark:prose-invert">
                   {section.content?.split('\n\n').map((paragraph, i) => (
-                    <p key={i} className="text-neutral-700 leading-relaxed mb-6">
+                    <p key={i} className="text-foreground leading-relaxed mb-6">
                       {paragraph}
                     </p>
                   ))}
@@ -338,15 +345,15 @@ export default function LearningPage() {
             {/* Concept Section */}
             {section.type === 'concept' && (
               <div className="space-y-6">
-                <div className="inline-block px-4 py-2 bg-neutral-100 text-neutral-700 rounded-full text-sm">
+                <div className="inline-block px-4 py-2 bg-accent/20 text-accent-foreground rounded-full text-sm font-semibold border border-accent/30">
                   Core Concept
                 </div>
-                <div className="prose prose-lg max-w-none">
+                <div className="prose prose-lg max-w-none dark:prose-invert">
                   {section.content?.split('\n\n').map((block, i) => {
                     if (block.startsWith('```')) {
                       const code = block.replace(/```python\n?/, '').replace(/```/, '').trim();
                       return (
-                        <pre key={i} className="bg-neutral-900 text-neutral-100 p-6 rounded-lg overflow-x-auto mb-6">
+                        <pre key={i} className="bg-muted border border-border text-foreground p-6 rounded-lg overflow-x-auto mb-6 chalkboard-effect">
                           <code>{code}</code>
                         </pre>
                       );
@@ -354,18 +361,18 @@ export default function LearningPage() {
                     if (block.startsWith('**') && block.includes('**\n')) {
                       const [title, ...rest] = block.split('\n');
                       return (
-                        <div key={i}>
-                          <h3 className="text-xl text-neutral-900 mb-4">
+                        <div key={i} className="teaching-highlight p-4 rounded-lg mb-6">
+                          <h3 className="text-xl text-foreground mb-4 font-semibold">
                             {title.replace(/\*\*/g, '')}
                           </h3>
-                          <p className="text-neutral-700 leading-relaxed mb-6">
+                          <p className="text-foreground leading-relaxed">
                             {rest.join('\n')}
                           </p>
                         </div>
                       );
                     }
                     return (
-                      <p key={i} className="text-neutral-700 leading-relaxed mb-6">
+                      <p key={i} className="text-foreground leading-relaxed mb-6">
                         {block}
                       </p>
                     );
@@ -377,28 +384,28 @@ export default function LearningPage() {
             {/* Checkpoint Section */}
             {section.type === 'checkpoint' && (
               <div className="space-y-6">
-                <div className="inline-block px-4 py-2 bg-amber-50 text-amber-700 rounded-full text-sm">
+                <div className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-semibold border border-primary/30">
                   Checkpoint
                 </div>
-                <div className="p-6 bg-amber-50 border-2 border-amber-200 rounded-lg">
-                  <p className="text-lg text-neutral-900 mb-4 leading-relaxed">
+                <div className="p-6 bg-primary/5 border-2 border-primary/30 rounded-lg classroom-card teaching-highlight">
+                  <p className="text-lg text-foreground mb-4 leading-relaxed font-medium">
                     {section.question}
                   </p>
                   <Input
                     value={checkpointAnswer}
                     onChange={(e) => setCheckpointAnswer(e.target.value)}
                     placeholder="Type your thoughts here..."
-                    className="mb-4 p-4 text-base"
+                    className="mb-4 p-4 text-base bg-background"
                     disabled={showCheckpointFeedback}
                   />
                   {section.hint && !showCheckpointFeedback && (
-                    <p className="text-sm text-amber-700">
+                    <p className="text-sm text-primary font-medium">
                       💡 Hint: {section.hint}
                     </p>
                   )}
                   {showCheckpointFeedback && (
-                    <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                      <p className="text-primary">
+                    <div className="mt-4 p-4 bg-primary/15 border border-primary/30 rounded-lg">
+                      <p className="text-primary font-medium">
                         {checkpointFeedback || 'Great thinking! This kind of reflection is key to deep understanding.'}
                       </p>
                     </div>
@@ -410,26 +417,26 @@ export default function LearningPage() {
             {/* Analogy Section */}
             {section.type === 'analogy' && (
               <div className="space-y-6">
-                <div className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm">
+                <div className="inline-block px-4 py-2 bg-accent/20 text-accent-foreground rounded-full text-sm font-semibold border border-accent/30">
                   Building Intuition
                 </div>
-                <div className="prose prose-lg max-w-none">
+                <div className="prose prose-lg max-w-none dark:prose-invert">
                   {section.content?.split('\n\n').map((block, i) => {
                     if (block.startsWith('**') && block.includes('**\n')) {
                       const [title, ...rest] = block.split('\n');
                       return (
-                        <div key={i}>
-                          <h3 className="text-xl text-neutral-900 mb-4">
+                        <div key={i} className="teaching-highlight p-4 rounded-lg mb-6">
+                          <h3 className="text-xl text-foreground mb-4 font-semibold">
                             {title.replace(/\*\*/g, '')}
                           </h3>
-                          <p className="text-neutral-700 leading-relaxed mb-6">
+                          <p className="text-foreground leading-relaxed">
                             {rest.join('\n')}
                           </p>
                         </div>
                       );
                     }
                     return (
-                      <p key={i} className="text-neutral-700 leading-relaxed mb-6">
+                      <p key={i} className="text-foreground leading-relaxed mb-6">
                         {block}
                       </p>
                     );
@@ -441,18 +448,18 @@ export default function LearningPage() {
             {/* Reflection Section */}
             {section.type === 'reflection' && (
               <div className="space-y-6">
-                <div className="p-8 bg-gradient-to-br from-primary/10 to-amber-50 border-2 border-primary/20 rounded-lg">
+                <div className="p-8 bg-gradient-to-br from-primary/15 to-accent/10 border-2 border-primary/30 rounded-lg classroom-card">
                   <div className="flex gap-4">
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-primary/25 rounded-full flex items-center justify-center border-2 border-primary/40">
                         <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg text-neutral-900 mb-2">Take a Moment</h3>
-                      <p className="text-neutral-700 leading-relaxed">
+                      <h3 className="text-lg text-foreground mb-2 font-semibold">Take a Moment</h3>
+                      <p className="text-foreground leading-relaxed">
                         {section.content}
                       </p>
                     </div>
@@ -464,7 +471,7 @@ export default function LearningPage() {
         </div>
 
         {/* Navigation Footer */}
-        <footer className="border-t border-neutral-200 bg-white px-6 py-4">
+        <footer className="border-t border-border bg-card px-6 py-4">
           <div className="max-w-3xl mx-auto flex justify-between items-center">
             <Button
               onClick={handleBack}
