@@ -30,6 +30,7 @@ interface RoadmapConcept {
   title: string;
   description: string;
   level: string;
+  prerequisites?: string[];
   status: ConceptStatus;
   masteryScore: number;
   confidenceScore: number;
@@ -37,7 +38,7 @@ interface RoadmapConcept {
 
 export default function RoadmapPage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isGuest } = useAuth();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [concepts, setConcepts] = useState<RoadmapConcept[]>([]);
   const [progress, setProgress] = useState({
@@ -50,26 +51,68 @@ export default function RoadmapPage() {
 
   useEffect(() => {
     fetchRoadmap();
-  }, []);
+  }, [isGuest]);
 
   const fetchRoadmap = async () => {
     try {
       setLoading(true);
       setError(null); // Clear previous errors
-      const response = await fetch("/api/roadmap", {
+      
+      // Use guest API if user is a guest
+      const apiRoute = isGuest ? "/api/guest/roadmap" : "/api/roadmap";
+      const response = await fetch(apiRoute, {
         credentials: "include", // Include cookies for authentication
       });
+      
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 && !isGuest) {
           router.push("/login");
           return;
         }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to load roadmap");
       }
+      
       const data = await response.json();
-      setConcepts(data.roadmap);
-      setProgress(data.progress);
+      
+      // For guests, update progress from localStorage
+      if (isGuest && typeof window !== 'undefined') {
+        const guestProgress = JSON.parse(
+          localStorage.getItem('ailp_guest_progress') || '{"completedConcepts": [], "assessmentCompleted": false}'
+        );
+        const completedCount = guestProgress.completedConcepts?.length || 0;
+        const total = data.roadmap.length;
+        
+        // Update concept statuses based on guest progress
+        const updatedRoadmap = data.roadmap.map((concept: RoadmapConcept) => {
+          if (guestProgress.completedConcepts?.includes(concept.id)) {
+            return { ...concept, status: 'completed' as ConceptStatus };
+          }
+          // Check prerequisites for guests
+          const completedIds = guestProgress.completedConcepts || [];
+          const allPrereqsMet = concept.prerequisites.every((prereq: string) =>
+            completedIds.includes(prereq)
+          );
+          if (concept.prerequisites.length === 0 || allPrereqsMet) {
+            return { ...concept, status: 'available' as ConceptStatus };
+          }
+          return { ...concept, status: 'locked' as ConceptStatus };
+        });
+        
+        setConcepts(updatedRoadmap);
+        setProgress({
+          completed: completedCount,
+          total,
+          percent: Math.round((completedCount / total) * 100),
+        });
+      } else {
+        setConcepts(data.roadmap || []);
+        setProgress(data.progress || {
+          completed: 0,
+          total: data.roadmap?.length || 0,
+          percent: 0,
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load roadmap");
     } finally {
@@ -93,27 +136,32 @@ export default function RoadmapPage() {
             <h2 className="text-lg tracking-tight text-foreground font-semibold">
               LearnAI
             </h2>
-            <div className="flex items-center gap-4">
-              {user && (
-                <span className="text-sm text-muted-foreground">
-                  {user.email}
-                </span>
-              )}
+          <div className="flex items-center gap-4">
+            {user && (
               <span className="text-sm text-muted-foreground">
-                {progress.completed} of {progress.total} concepts mastered
+                {isGuest ? 'Guest User' : user.email}
               </span>
-              <ThemeToggle />
-              {user && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={logout}
-                  className="text-sm"
-                >
-                  Sign Out
-                </Button>
-              )}
-            </div>
+            )}
+            <span className="text-sm text-muted-foreground">
+              {progress?.completed || 0} of {progress?.total || 0} concepts mastered
+            </span>
+            {isGuest && (
+              <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+                Guest Mode
+              </span>
+            )}
+            <ThemeToggle />
+            {user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="text-sm"
+              >
+                {isGuest ? 'Exit Guest' : 'Sign Out'}
+              </Button>
+            )}
+          </div>
           </div>
         </header>
 
@@ -136,10 +184,10 @@ export default function RoadmapPage() {
                     Overall Progress
                   </span>
                   <span className="text-foreground font-semibold">
-                    {progress.percent}%
+                    {progress?.percent || 0}%
                   </span>
                 </div>
-                <Progress value={progress.percent} className="h-3" />
+                <Progress value={progress?.percent || 0} className="h-3" />
               </div>
             </div>
 

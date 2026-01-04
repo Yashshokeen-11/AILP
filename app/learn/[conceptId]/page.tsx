@@ -23,7 +23,7 @@ const Teacher3D = dynamic(() => import('@/components/teacher-3d').then(mod => ({
 export default function LearningPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isGuest } = useAuth();
   const conceptId = params.conceptId as string;
   const [currentSection, setCurrentSection] = useState(0);
   const [checkpointAnswer, setCheckpointAnswer] = useState('');
@@ -40,18 +40,22 @@ export default function LearningPage() {
     if (conceptId) {
       fetchLearningContent();
     }
-  }, [conceptId]);
+  }, [conceptId, isGuest]);
 
   const fetchLearningContent = async () => {
     try {
       setLoading(true);
       setError(null);
       console.log(`[LearningPage] Fetching content for concept: ${conceptId}`);
-      const response = await fetch(`/api/learn/${conceptId}`, {
+      
+      // Use guest API if user is a guest
+      const apiRoute = isGuest ? `/api/guest/learn/${conceptId}` : `/api/learn/${conceptId}`;
+      const response = await fetch(apiRoute, {
         credentials: 'include',
       });
+      
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 && !isGuest) {
           router.push('/login');
           return;
         }
@@ -195,7 +199,19 @@ export default function LearningPage() {
 
     if (isLastSection) {
       // Complete concept
-      if (sessionId) {
+      if (isGuest) {
+        // For guest users, update localStorage
+        if (typeof window !== 'undefined') {
+          const { updateGuestProgress, getGuestProgress } = await import('@/lib/auth/guest');
+          const progress = getGuestProgress();
+          const completedConcepts = progress.completedConcepts || [];
+          if (!completedConcepts.includes(conceptId)) {
+            updateGuestProgress({
+              completedConcepts: [...completedConcepts, conceptId],
+            });
+          }
+        }
+      } else if (sessionId) {
         try {
           await fetch(`/api/learn/${conceptId}/complete`, {
             method: 'POST',

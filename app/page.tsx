@@ -1,8 +1,14 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function LandingPage() {
+  const router = useRouter();
+  const { continueAsGuest } = useAuth();
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -25,17 +31,31 @@ export default function LandingPage() {
             No videos, no distractions—just deep, intuitive understanding.
           </p>
 
-          <div className="flex gap-4 justify-center">
-            <Link href="/signup">
-              <Button className="px-8 py-6 text-lg">
-                Get Started
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="outline" className="px-8 py-6 text-lg">
-                Sign In
-              </Button>
-            </Link>
+          <div className="flex flex-col gap-4 justify-center items-center">
+            <div className="flex gap-4">
+              <Link href="/signup">
+                <Button className="px-8 py-6 text-lg">
+                  Get Started
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline" className="px-8 py-6 text-lg">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                continueAsGuest();
+                // Small delay to ensure guest session is set in localStorage
+                await new Promise(resolve => setTimeout(resolve, 50));
+                router.push('/subjects');
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Continue as Guest
+            </Button>
           </div>
 
           {/* Feature Points */}

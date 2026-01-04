@@ -8,6 +8,7 @@ import type { NextRequest } from 'next/server';
 
 const publicRoutes = ['/', '/login', '/signup'];
 const protectedRoutes = ['/subjects', '/assessment', '/roadmap', '/learn', '/feedback'];
+const guestAllowedRoutes = ['/roadmap', '/learn', '/subjects', '/assessment']; // Routes guests can access
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,9 +17,12 @@ export function middleware(request: NextRequest) {
   // Check if route is protected
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   const isPublicRoute = publicRoutes.includes(pathname);
+  const isGuestAllowedRoute = guestAllowedRoutes.some(route => pathname.startsWith(route));
 
-  // Redirect to login if accessing protected route without session
-  if (isProtectedRoute && !sessionCookie) {
+  // Allow guest access to certain routes (client-side will check localStorage)
+  // For now, we'll allow access and let the client handle guest mode
+  // Only redirect if it's a strictly protected route (like /assessment/submit)
+  if (isProtectedRoute && !sessionCookie && !isGuestAllowedRoute) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

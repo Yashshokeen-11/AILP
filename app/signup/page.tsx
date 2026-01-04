@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -134,6 +136,29 @@ export default function SignupPage() {
             {loading ? 'Creating account...' : 'Create Account'}
           </Button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-neutral-200"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-neutral-50 text-neutral-500">Or</span>
+          </div>
+        </div>
+
+        {/* Continue as Guest */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            continueAsGuest();
+            router.push('/subjects');
+          }}
+          className="w-full"
+        >
+          Continue as Guest
+        </Button>
 
         {/* Login link */}
         <div className="mt-6 text-center">

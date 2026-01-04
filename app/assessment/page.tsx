@@ -26,7 +26,7 @@ const questions = [
 
 export default function AssessmentPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isGuest } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
 
@@ -36,12 +36,12 @@ export default function AssessmentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated and not a guest
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !user && !isGuest) {
       router.push('/login?redirect=/assessment');
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, isGuest, router]);
 
   // Show loading state while checking auth
   if (authLoading) {
@@ -76,21 +76,34 @@ export default function AssessmentPage() {
         responseText: answers[q.id] || '',
       }));
 
-      const response = await fetch('/api/assessment/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies in request
-        body: JSON.stringify({ responses }),
-      });
+      if (isGuest) {
+        // For guest users, store assessment in localStorage
+        if (typeof window !== 'undefined') {
+          const { updateGuestProgress } = await import('@/lib/auth/guest');
+          updateGuestProgress({
+            assessmentCompleted: true,
+            assessmentResponses: responses,
+          });
+        }
+        router.push('/roadmap');
+      } else {
+        // For authenticated users, submit to API
+        const response = await fetch('/api/assessment/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies in request
+          body: JSON.stringify({ responses }),
+        });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to submit assessment');
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to submit assessment');
+        }
+
+        router.push('/roadmap');
       }
-
-      router.push('/roadmap');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit assessment');
       setIsSubmitting(false);

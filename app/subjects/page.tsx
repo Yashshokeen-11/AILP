@@ -5,15 +5,32 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { getGuestId } from '@/lib/auth/guest';
 
 export default function SubjectSelectionPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isGuest } = useAuth();
 
   // Check if user has completed assessment and redirect accordingly
   useEffect(() => {
     if (!authLoading) {
-      if (user) {
+      // First check if user is a guest (from localStorage) - this is synchronous
+      const guestId = typeof window !== 'undefined' ? getGuestId() : null;
+      if (guestId) {
+        // User is a guest, check if they've done assessment
+        const guestProgress = JSON.parse(
+          localStorage.getItem('ailp_guest_progress') || '{"assessmentCompleted": false}'
+        );
+        if (!guestProgress.assessmentCompleted) {
+          router.push('/assessment');
+        } else {
+          router.push('/roadmap');
+        }
+        return; // Don't make any API calls
+      }
+
+      // If we have a user (authenticated), check status
+      if (user && !isGuest) {
         // User is authenticated, check status and redirect
         fetch('/api/auth/status', {
           credentials: 'include',
@@ -33,10 +50,18 @@ export default function SubjectSelectionPage() {
             // If error, redirect to assessment as default
             router.push('/assessment');
           });
-      } else {
-        // Not authenticated - wait a moment for cookie to be available, then check again
+      } else if (!user && !isGuest) {
+        // Not authenticated and not a guest - wait a moment for cookie to be available, then check again
         const checkAuth = async () => {
           await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Check for guest again (in case it was just created)
+          const guestIdCheck = typeof window !== 'undefined' ? getGuestId() : null;
+          if (guestIdCheck) {
+            // Guest session was created, let useAuth hook handle it
+            return;
+          }
+          
           const res = await fetch('/api/auth/me', {
             credentials: 'include',
           });
@@ -60,7 +85,7 @@ export default function SubjectSelectionPage() {
         checkAuth();
       }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, isGuest, router]);
 
   // Show loading state while checking auth
   if (authLoading) {

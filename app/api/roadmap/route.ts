@@ -53,8 +53,16 @@ export async function GET(request: NextRequest) {
             }
           });
           
-          const roadmap = generateRoadmap(conceptConfidence, completedIds);
-          return NextResponse.json(roadmap);
+          const roadmapData = generateRoadmap(conceptConfidence, completedIds);
+          const completedCount = roadmapData.concepts.filter(c => c.status === 'completed').length;
+          return NextResponse.json({
+            roadmap: roadmapData.concepts,
+            progress: {
+              completed: completedCount,
+              total: roadmapData.concepts.length,
+              percent: Math.round(roadmapData.overallProgress),
+            },
+          });
         }
       } catch (error) {
         // Fall through to query param mode if auth fails
@@ -77,9 +85,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const roadmap = generateRoadmap(conceptConfidence, completedIds);
-
-    return NextResponse.json(roadmap);
+    const roadmapData = generateRoadmap(conceptConfidence, completedIds);
+    const completedCount = roadmapData.concepts.filter(c => c.status === 'completed').length;
+    return NextResponse.json({
+      roadmap: roadmapData.concepts,
+      progress: {
+        completed: completedCount,
+        total: roadmapData.concepts.length,
+        percent: Math.round(roadmapData.overallProgress),
+      },
+    });
   } catch (error) {
     console.error('Roadmap generation error:', error);
     return NextResponse.json(

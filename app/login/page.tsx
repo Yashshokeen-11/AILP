@@ -6,18 +6,19 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { clearGuestSession } from '@/lib/auth/guest';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, continueAsGuest, isGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (but not if guest)
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user && !isGuest) {
       // Check status and redirect accordingly
       fetch('/api/auth/status', {
         credentials: 'include',
@@ -29,8 +30,11 @@ export default function LoginPage() {
         .catch(() => {
           router.push('/subjects');
         });
+    } else if (!authLoading && user && isGuest) {
+      // Guest users can stay on login page if they want to sign in
+      // Don't auto-redirect
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, isGuest, router]);
 
   // Show loading while checking auth
   if (authLoading) {
@@ -41,8 +45,8 @@ export default function LoginPage() {
     );
   }
 
-  // Don't show login form if already authenticated (redirect will happen)
-  if (user) {
+  // Don't show login form if already authenticated (but allow guests to sign in)
+  if (user && !isGuest) {
     return null;
   }
 
@@ -68,6 +72,11 @@ export default function LoginPage() {
       }
 
       console.log('Login response successful, redirecting...');
+
+      // If user was a guest, clear guest session
+      if (isGuest) {
+        clearGuestSession();
+      }
 
       // Success! Use full page reload to ensure cookie is set and available
       // Wait a moment to ensure cookie is processed, then redirect
@@ -142,6 +151,29 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-neutral-200"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-neutral-50 text-neutral-500">Or</span>
+          </div>
+        </div>
+
+        {/* Continue as Guest */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            continueAsGuest();
+            router.push('/subjects');
+          }}
+          className="w-full"
+        >
+          Continue as Guest
+        </Button>
 
         {/* Sign up link */}
         <div className="mt-6 text-center">
